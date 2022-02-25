@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from numpy import real, imag
 from math import cos,sin
 
