@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 
-from numpy import real, imag
-from math import cos,sin
-
-def complex_rotate(points,angle):
-    points = [(p[0]+ p[1]*1j)*(cos(angle)+sin(angle)*1j) for p in points]
-    return [(real(p),imag(p)) for p in points]
+import numpy as np
+from math import cos, sin, pi
+import matplotlib.pyplot as plt
 
 
-# An example:
-# import matplotlib.pyplot as plt
-# from numpy import linspace
-# from math import pi
-    
-# def gen_cube(x,y,length, height):
-#     x = linspace(x - length/2, x + length/2, 2000)
-#     h_y = linspace(y - height/2, y+ height/2, 2000)
-    
-#     print([x[0]]*len(h_y))
-#     h1_points = list(zip([x[0]]*len(h_y),h_y))
-#     h2_points = list(zip([x[-1]]*len(h_y), h_y))
-#     l1_points = list(zip(x,[h_y[0]]*len(x)))
-#     l2_points = list(zip(x,[h_y[-1]]*len(x)))
-    
-#     return h1_points + h2_points + l1_points + l2_points 
-    
-# a = gen_cube(0,0,10,10)
-# b = complex_rotate(a,(30*pi)/(180))
-# plt.scatter(*zip(*b))
-# plt.axis('equal')
-# plt.show()
+def matrix_rotation(points, angle):
+    point_matrices = [np.array([i[0], i[1]]) for i in points]
+    rotation_matrix = np.array([[cos(angle), -sin(angle)],
+                                [sin(angle), cos(angle)]])
+
+    result = [np.dot(rotation_matrix, i) for i in point_matrices]
+    return [(i[0], i[1]) for i in result]
+
+
+# Example
+fig, ax = plt.subplots()
+ax.axis('equal')
+ax.set_facecolor((0,0,0))
+fig.patch.set_facecolor((0,0,0))
+points = [(x, y) for x in range(-5, 6) for y in range(-5, 6)]
+points = matrix_rotation(points, pi / 6)
+
+x, y = zip(*points)
+plt.scatter(x, y)
+plt.show()
+
