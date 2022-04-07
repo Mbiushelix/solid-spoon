@@ -7,7 +7,7 @@ print(f"[INFO] {number_of_variables} equations are expected.")
 data = []
 
 for i in range(number_of_variables):
-    data.append(input(f"[INPUT] Equation number {i + 1} : "))
+    data.append(input(f"[INPUT] Equation number {i + 1} : ").replace(" ",""))
 
 alphabet = "abcdefghijklmnopqrstuvwxyzæøåABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ"
 
@@ -29,7 +29,12 @@ def clean_equation(equation):
 
     equation_left_side = equation.split("=")[0].replace("+", "&+")
     equation_left_side = equation_left_side.replace("-", "&-").split("&")
+    
+    equation_left_side.remove("") if "" in equation_left_side else equation_left_side
+    equation_right_side.remove("") if "" in equation_right_side else equation_right_side
 
+
+    print(f"ls = {equation_left_side} and rs = {equation_right_side}")
     for term in equation_right_side:
         for variable in variables:
             if variable in term:
@@ -38,7 +43,10 @@ def clean_equation(equation):
                 # Adds a 1 if single + or - 
                 if coefficient == "+" or coefficient == "-":
                     coefficient = coefficient + "1"
-
+                elif coefficient == "":
+                    coefficient = "1"
+                    
+                print(coefficient)
                 equation_left_side.append(str(-1 * eval(coefficient)) + variable)
                 equation_right_side.remove(term)
 
@@ -66,6 +74,7 @@ def find_coefficients(equation):
                 if coefficient == "+" or coefficient == "-":
                     coefficient = coefficient + "1"
 
+
                 dict_coefficient[variable] += eval(coefficient) if coefficient != "" else 1
 
     coefficient_list = list(dict_coefficient.values())
@@ -78,4 +87,3 @@ result_matrix = np.dot(np.linalg.inv(equation_system_matrix), right_side_matrix)
 
 for index, result in enumerate(result_matrix):
     print(f"[Result] {variables[index]} = {result_matrix[index]}")
-
