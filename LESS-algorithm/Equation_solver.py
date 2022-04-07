@@ -18,6 +18,7 @@ variables = list(dict.fromkeys(variables))
 
 def find_right_side(equation):
     right_side_equation = clean_equation(equation)[1]
+    right_side_equation.remove("") if "" in right_side_equation else right_side_equation
     right_side_equation = [eval(term) for term in right_side_equation]
     return sum(right_side_equation)
 
@@ -77,3 +78,4 @@ result_matrix = np.dot(np.linalg.inv(equation_system_matrix), right_side_matrix)
 
 for index, result in enumerate(result_matrix):
     print(f"[Result] {variables[index]} = {result_matrix[index]}")
+
