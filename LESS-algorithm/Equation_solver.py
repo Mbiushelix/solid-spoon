@@ -7,7 +7,7 @@ print(f"[INFO] {number_of_variables} equations are expected.")
 data = []
 
 for i in range(number_of_variables):
-    data.append(input(f"[INPUT] Equation number {i + 1} : ").replace(" ",""))
+    data.append(input(f"[INPUT] Equation number {i + 1} : ").replace(" ", ""))
 
 alphabet = "abcdefghijklmnopqrstuvwxyzæøåABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ"
 
@@ -23,38 +23,34 @@ def find_right_side(equation):
     return sum(right_side_equation)
 
 
+def move_variables(variable, term, equation_left_side, equation_right_side):
+    coefficient = term.replace(variable, "")
+    coefficient = adjust_coefficient(coefficient)
+
+    equation_left_side.append(str(-1 * eval(coefficient)) + variable)
+    equation_right_side.remove(term)
+
+
 def clean_equation(equation):
     equation_right_side = equation.split("=")[1].replace("+", "&+")
     equation_right_side = equation_right_side.replace("-", "&-").split("&")
+    equation_right_side = list(filter(None, equation_right_side))
 
     equation_left_side = equation.split("=")[0].replace("+", "&+")
     equation_left_side = equation_left_side.replace("-", "&-").split("&")
-    
-    equation_left_side.remove("") if "" in equation_left_side else equation_left_side
-    equation_right_side.remove("") if "" in equation_right_side else equation_right_side
+    equation_left_side = list(filter(None, equation_left_side))
 
-
-    print(f"ls = {equation_left_side} and rs = {equation_right_side}")
-    for term in equation_right_side:
+    # print(f"[DEBUG] ls = {equation_left_side} and rs = {equation_right_side}")
+    for term in list(equation_right_side):
         for variable in variables:
             if variable in term:
-                coefficient = term.replace(variable, "")
+                move_variables(variable, term, equation_left_side, equation_right_side)
 
-                # Adds a 1 if single + or - 
-                if coefficient == "+" or coefficient == "-":
-                    coefficient = coefficient + "1"
-                elif coefficient == "":
-                    coefficient = "1"
-                    
-                print(coefficient)
-                equation_left_side.append(str(-1 * eval(coefficient)) + variable)
-                equation_right_side.remove(term)
-
-    for term in equation_left_side:
-        for index0, variable in enumerate(variables):
+    for term in list(equation_left_side):
+        for index_num, variable in enumerate(variables):
             if variable in term:
                 break
-            elif variable not in term and index0 == len(variables) - 1:
+            elif variable not in term and index_num == len(variables) - 1:
                 equation_right_side.append(f"{-1 * eval(term)}")
                 equation_left_side.remove(term)
 
@@ -65,20 +61,29 @@ def find_coefficients(equation):
     dict_coefficient = dict([(variable, 0) for variable in variables])
     equation = clean_equation(equation)[0]
 
-    for term in equation:
+    for term in list(equation):
         for variable in variables:
             if variable in term:
                 coefficient = term.replace(variable, "")
-
-                # Adds a 1 if single + or - 
-                if coefficient == "+" or coefficient == "-":
-                    coefficient = coefficient + "1"
-
-
+                coefficient = adjust_coefficient(coefficient)
                 dict_coefficient[variable] += eval(coefficient) if coefficient != "" else 1
 
     coefficient_list = list(dict_coefficient.values())
     return coefficient_list
+
+
+def adjust_coefficient(coefficient):
+    # Adds a 1 if single + or -
+    if coefficient == "+" or coefficient == "-":
+        coefficient = coefficient + "1"
+    elif coefficient == "":
+        coefficient = "1"
+
+    if "/" in coefficient and coefficient[0] == "/":
+        coefficient = "1" + coefficient
+        
+    print(coefficient)
+    return coefficient
 
 
 equation_system_matrix = np.array([find_coefficients(data[i]) for i in range(0, len(data))])
